@@ -1,0 +1,11 @@
+{
+  "name": "who-questions",
+  "module": "index.ts",
+  "scripts": {
+    "make": "bun run index.ts"
+  },
+  "type": "module",
+  "devDependencies": {
+    "bun-types": "^0.4.0"
+  }
+}
