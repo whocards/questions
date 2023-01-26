@@ -34,7 +34,7 @@ const writeSingleLanguage = async (lang: string) => {
     questions[parseInt(rawData[i][0])] = rawData[i][index]
   }
 
-  await writeJsonFile(lang, { lang, questions }, 'languages')
+  await writeJsonFile(lang, { language: lang, questions }, 'languages')
 }
 
 const writeAllSingleLanguages = async () => {
