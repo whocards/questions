@@ -20,6 +20,7 @@ const getSheet = async () => {
   )
   rawData = data.values
   rawData[0] = rawData[0].map((i) => i.toLowerCase())
+  rawData[1] = rawData[1].map((i) => capitalize(i))
 }
 
 const writeSingleLanguage = async (lang: string) => {
@@ -33,7 +34,7 @@ const writeSingleLanguage = async (lang: string) => {
     questions[parseInt(rawData[i][0])] = rawData[i][index]
   }
 
-  await writeJsonFile(lang, questions)
+  await writeJsonFile(lang, { lang, questions }, 'languages')
 }
 
 const writeAllSingleLanguages = async () => {
@@ -61,7 +62,7 @@ const writeSupportedLanguages = async () => {
   const languages: Record<string, string> = {}
 
   for (let l = 1; l < rawData[0].length; ++l) {
-    languages[rawData[0][l]] = capitalize(rawData[1][l])
+    languages[rawData[0][l]] = rawData[1][l]
   }
 
   await writeJsonFile('languages', languages)
@@ -71,10 +72,10 @@ const writeSupportedLanguages = async () => {
 const stringify = (data: object) => JSON.stringify(data, null, 2)
 
 const capitalize = (str: string) =>
-  str[0].toUpperCase() + str.slice(1).toLowerCase()
+  str ? str[0].toUpperCase() + str.slice(1).toLowerCase() : str
 
-const writeJsonFile = async (name: string, data: object) => {
-  const filePath = `data/${name}.json`
+const writeJsonFile = async (name: string, data: object, dir?: string) => {
+  const filePath = ['data', dir, name].filter(Boolean).join('/') + '.json'
   await Bun.write(filePath, stringify(data))
   console.log('OK:', filePath)
 }
