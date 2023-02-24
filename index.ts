@@ -1,7 +1,12 @@
-import fs from 'fs'
-const API_KEY = process.env.SHEET_API_KEY
-const SHEET_ID = process.env.SHEET_ID
+process.removeAllListeners('warning')
 
+import fs from 'fs'
+import dotenv from 'dotenv'
+dotenv.config()
+
+const API_KEY = process.env.SHEET_API_KEY
+
+const SHEET_ID = '1khmUFsF2PYR6tmUd_7eBEDTtlXVoo2qhcyuQl354BXw'
 const range = 'Sheet1!A1:Z'
 const sheetUrl = `https://sheets.googleapis.com/v4/spreadsheets/${SHEET_ID}/values/${range}`
 
@@ -15,9 +20,10 @@ type Questions = Record<number | string, string>
 let rawData: RawData
 
 const getSheet = async () => {
-  const data: Res = await await fetch(`${sheetUrl}?key=${API_KEY}`).then((r) =>
+  const data: Res = await fetch(`${sheetUrl}?key=${API_KEY}`).then((r) =>
     r.json()
   )
+  // cleanup
   rawData = data.values
   rawData[0] = rawData[0].map((i) => i.toLowerCase())
   rawData[1] = rawData[1].map((i) => capitalize(i))
@@ -76,7 +82,7 @@ const capitalize = (str: string) =>
 
 const writeJsonFile = async (name: string, data: object, dir?: string) => {
   const filePath = ['data', dir, name].filter(Boolean).join('/') + '.json'
-  await Bun.write(filePath, stringify(data))
+  await fs.writeFileSync(filePath, stringify(data))
   console.log('OK:', filePath)
 }
 
