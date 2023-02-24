@@ -1,7 +1,12 @@
-import fs from 'fs'
-const API_KEY = process.env.SHEET_API_KEY
-const SHEET_ID = process.env.SHEET_ID
+process.removeAllListeners('warning')
 
+import fs from 'fs'
+import dotenv from 'dotenv'
+dotenv.config()
+
+const API_KEY = process.env.SHEET_API_KEY
+
+const SHEET_ID = '1khmUFsF2PYR6tmUd_7eBEDTtlXVoo2qhcyuQl354BXw'
 const range = 'Sheet1!A1:Z'
 const sheetUrl = `https://sheets.googleapis.com/v4/spreadsheets/${SHEET_ID}/values/${range}`
 
@@ -15,11 +20,13 @@ type Questions = Record<number | string, string>
 let rawData: RawData
 
 const getSheet = async () => {
-  const data: Res = await await fetch(`${sheetUrl}?key=${API_KEY}`).then((r) =>
+  const data: Res = await fetch(`${sheetUrl}?key=${API_KEY}`).then((r) =>
     r.json()
   )
+  // cleanup
   rawData = data.values
   rawData[0] = rawData[0].map((i) => i.toLowerCase())
+  rawData[1] = rawData[1].map((i) => capitalize(i))
 }
 
 const writeSingleLanguage = async (lang: string) => {
@@ -33,7 +40,7 @@ const writeSingleLanguage = async (lang: string) => {
     questions[parseInt(rawData[i][0])] = rawData[i][index]
   }
 
-  await writeJsonFile(lang, questions)
+  await writeJsonFile(lang, { language: lang, questions }, 'languages')
 }
 
 const writeAllSingleLanguages = async () => {
@@ -61,7 +68,7 @@ const writeSupportedLanguages = async () => {
   const languages: Record<string, string> = {}
 
   for (let l = 1; l < rawData[0].length; ++l) {
-    languages[rawData[0][l]] = capitalize(rawData[1][l])
+    languages[rawData[0][l]] = rawData[1][l]
   }
 
   await writeJsonFile('languages', languages)
@@ -71,11 +78,11 @@ const writeSupportedLanguages = async () => {
 const stringify = (data: object) => JSON.stringify(data, null, 2)
 
 const capitalize = (str: string) =>
-  str[0].toUpperCase() + str.slice(1).toLowerCase()
+  str ? str[0].toUpperCase() + str.slice(1).toLowerCase() : str
 
-const writeJsonFile = async (name: string, data: object) => {
-  const filePath = `data/${name}.json`
-  await Bun.write(filePath, stringify(data))
+const writeJsonFile = async (name: string, data: object, dir?: string) => {
+  const filePath = ['data', dir, name].filter(Boolean).join('/') + '.json'
+  await fs.writeFileSync(filePath, stringify(data))
   console.log('OK:', filePath)
 }
 
