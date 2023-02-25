@@ -1,6 +1,7 @@
 process.removeAllListeners('warning')
 
 import fs from 'fs'
+import path from 'path'
 import dotenv from 'dotenv'
 dotenv.config()
 
@@ -81,8 +82,8 @@ const capitalize = (str: string) =>
   str ? str[0].toUpperCase() + str.slice(1).toLowerCase() : str
 
 const writeJsonFile = async (name: string, data: object, dir?: string) => {
-  const filePath = ['data', dir, name].filter(Boolean).join('/') + '.json'
-  await fs.writeFileSync(filePath, stringify(data))
+  const filePath = path.join('data', dir ?? '', name)
+  await fs.writeFileSync(filePath + '.json', stringify(data))
   console.log('OK:', filePath)
 }
 
