@@ -11,6 +11,10 @@ To build the languages:
 1. `pnpm install`
 1. `pnpm build`
 
+## Common errors
+
+- 403 response from API - share spreadsheet with anyone with a link
+
 ## Next step TODO and document
 
 The way this is meant to be used is as a helper CLI for any whocards repo. Install from github `pnpm i whocards/questions` and then the following scripts should be available to add to your pipeline

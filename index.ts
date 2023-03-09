@@ -6,10 +6,8 @@ import dotenv from 'dotenv'
 dotenv.config()
 
 const API_KEY = process.env.SHEET_API_KEY
-
-const SHEET_ID = '1khmUFsF2PYR6tmUd_7eBEDTtlXVoo2qhcyuQl354BXw'
-const range = 'Sheet1!A1:Z'
-const sheetUrl = `https://sheets.googleapis.com/v4/spreadsheets/${SHEET_ID}/values/${range}`
+const SHEET_ID = process.env.SHEET_ID
+const sheetUrl = `https://sheets.googleapis.com/v4/spreadsheets/${SHEET_ID}/values/Sheet1!A1:Z?key=${API_KEY}`
 
 type RawData = Array<Array<string>>
 interface Res {
@@ -21,9 +19,7 @@ type Questions = Record<number | string, string>
 let rawData: RawData
 
 const getSheet = async () => {
-  const data: Res = await fetch(`${sheetUrl}?key=${API_KEY}`).then((r) =>
-    r.json()
-  )
+  const data: Res = await fetch(sheetUrl).then((r) => r.json())
   // cleanup
   rawData = data.values
   rawData[0] = rawData[0].map((i) => i.toLowerCase())
@@ -79,7 +75,10 @@ const writeSupportedLanguages = async () => {
 const stringify = (data: object) => JSON.stringify(data, null, 2)
 
 const capitalize = (str: string) =>
-  str ? str[0].toUpperCase() + str.slice(1).toLowerCase() : str
+  str
+    .split(' ')
+    .map((s) => s[0].toUpperCase() + s.slice(1).toLowerCase())
+    .join(' ')
 
 const writeJsonFile = async (name: string, data: object, dir?: string) => {
   const filePath = path.join('data', dir ?? '', name)
@@ -90,7 +89,7 @@ const writeJsonFile = async (name: string, data: object, dir?: string) => {
 const run = async () => {
   await getSheet()
 
-  writeAllSingleLanguages()
+  // writeAllSingleLanguages()
   writeAllLanguages()
   writeSupportedLanguages()
 }

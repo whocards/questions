@@ -14,13 +14,17 @@ const generatePreviewImages = async ({
   lang,
   question,
 }: Question): Promise<unknown> => {
+  // formatted text with newline
+  const caption = question.trim().replace(/([?|？]) /g, '$1\n\n')
+  const font = Utils.getFont(lang === 'zh')
+
   return new Promise((resolve) => {
     gm.subClass({ imageMagick: true })(srcImagePath) // background
       .gravity('NorthWest') // start position for text
       .background('none') // text background
       .fill('#F5F5F5') // text color
-      .font(Utils.getFont(lang === 'zh')) // text font
-      .out('-size', '1100x500', 'caption:' + question) // text in rectangle
+      .font(font) // text font
+      .out('-size', '1100x500', 'caption:' + caption) // text in rectangle
       .out('-geometry', '+10+25') // adjust text rectangle
       .gravity('North') // place text on image
       .out('-composite') // mode for placing text
@@ -56,7 +60,7 @@ const main = async () => {
   Utils.resetLanguageDirs(baseDir)
   await generateAllImages()
 
-  // await generateImages1Question()
+  // await generateForQuestion()
   progressBar.stop()
   // generatePreviewImages('1', 'da')
   const end = performance.now()
